@@ -1,4 +1,4 @@
-import { useState, useEffect, useSyncExternalStore, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 import "./App.css";
 
@@ -15,17 +15,26 @@ function App() {
     if (charAllowed) char += "!@#$%^&*()_+_~:";
     for (let i = 1; i <= range; i++) {
       let random = Math.floor(Math.random() * char.length + 1);
-      console.log(random);
+
       pass += char.charAt(random);
 
-      console.log(pass);
       setPassword(pass);
     }
   }, [range, numberAllowed, charAllowed, setPassword]);
 
+  const passwordCopy = useCallback(() => {
+    passRef.current?.select();
+    passRef.current?.setSelectionRange(0, 999);
+    window.navigator.clipboard.writeText(password);
+  }, [password]);
+
   useEffect(() => {
     passwordGenerator();
   }, [numberAllowed, charAllowed, range, passwordGenerator]);
+
+  const passRef = useRef(null);
+
+  console.log("i am pass ref", passRef);
   return (
     <>
       <div className="h-screen w-screen bg-gray-700 flex  justify-center">
@@ -36,8 +45,12 @@ function App() {
               value={password}
               type="text"
               readOnly
+              ref={passRef}
             />
-            <button className="text-white w-[15%] h-full bg-black rounded">
+            <button
+              className="text-white w-[15%] h-full bg-black rounded cursor-pointer"
+              onClick={passwordCopy}
+            >
               Copy
             </button>
           </div>
@@ -48,6 +61,7 @@ function App() {
                 min={8}
                 max={100}
                 type="range"
+                value={range}
                 onChange={(e) => {
                   setRange(e.target.value);
                 }}
