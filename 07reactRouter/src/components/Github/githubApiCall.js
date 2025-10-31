@@ -7,3 +7,4 @@ export default async function GithubResponse() {
   }
   return response.json();
 }
+
